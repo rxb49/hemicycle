@@ -1,70 +1,149 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart'; // version ^3.0.0-beta.4
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(const MaterialApp(
+  debugShowCheckedModeBanner: false,
+  home: MyHome(),
+));
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyHome extends StatelessWidget {
+  const MyHome({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: QRScannerPage(),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Flutter Demo Home Page')),
+      body: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<dynamic>(
+                    builder: (BuildContext context) =>
+                        const BarcodeScannerWithController(),
+                  ),
+                );
+              },
+              child: const Icon(Icons.camera_alt_rounded),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-class QRScannerPage extends StatefulWidget {
+class BarcodeScannerWithController extends StatefulWidget {
+  const BarcodeScannerWithController({super.key});
+
   @override
-  _QRScannerPageState createState() => _QRScannerPageState();
+  _BarcodeScannerWithControllerState createState() =>
+      _BarcodeScannerWithControllerState();
 }
 
-class _QRScannerPageState extends State<QRScannerPage> {
-  bool isScanning = false;
+class _BarcodeScannerWithControllerState
+    extends State<BarcodeScannerWithController> {
+  BarcodeCapture? barcode;
 
-  void showscan() {
-    setState(() {
-      isScanning = !isScanning; 
-    });
+  late final MobileScannerController controller;
+
+  bool isStarted = true;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = MobileScannerController(
+      torchEnabled: true,
+      // formats: [BarcodeFormat.qrCode],
+      // facing: CameraFacing.front,
+      // detectionSpeed: DetectionSpeed.normal,
+      // detectionTimeoutMs: 1000,
+      // returnImage: false,
+    );
+    controller.start();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scanner QR Code'),
-        centerTitle: true,
+        title: Text(controller.hashCode.toString()),
       ),
-      body: Center(
-        child: isScanning
-            ? MobileScanner(
-                onDetect: (Barcode barcode, dynamic args) {
-                  final String code = barcode.rawValue ?? "Inconnu";
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text("QR Code détecté"),
-                      content: Text(code),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text("Fermer"),
-                        ),
-                      ],
-                    ),
-                  );
+      body: Builder(
+        builder: (BuildContext context) {
+          return Stack(
+            children: <Widget>[
+              MobileScanner(
+                controller: controller,
+                errorBuilder: (
+                  BuildContext context,
+                  MobileScannerException error,
+                  Widget? child,
+                ) {
+                  return ScannerErrorWidget(error: error);
                 },
-              )
-            : const Text('Appuyez sur le bouton pour scanner un QR Code'),
+                fit: BoxFit.contain,
+                onDetect: (BarcodeCapture barcode) {
+                  setState(() {
+                    this.barcode = barcode;
+                  });
+                },
+              ),
+            ],
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: showscan,
-        child: Icon(isScanning ? Icons.stop : Icons.camera_alt_rounded),
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+}
+
+class ScannerErrorWidget extends StatelessWidget {
+  const ScannerErrorWidget({super.key, required this.error});
+
+  final MobileScannerException error;
+
+  @override
+  Widget build(BuildContext context) {
+    String errorMessage;
+
+    switch (error.errorCode) {
+      case MobileScannerErrorCode.controllerUninitialized:
+        errorMessage = 'Controller not ready.';
+        break;
+      case MobileScannerErrorCode.permissionDenied:
+        errorMessage = 'Permission denied';
+        break;
+      default:
+        errorMessage = 'Generic Error';
+        break;
+    }
+
+    return ColoredBox(
+      color: Colors.black,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: Icon(Icons.error, color: Colors.white),
+            ),
+            Text(
+              errorMessage,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
       ),
     );
   }

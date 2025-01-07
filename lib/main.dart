@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart'; // version ^3.0.0-beta.4
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() => runApp(const MaterialApp(
-  debugShowCheckedModeBanner: false,
-  home: MyHome(),
-));
+      debugShowCheckedModeBanner: false,
+      home: MyHome(),
+    ));
 
 class MyHome extends StatelessWidget {
   const MyHome({super.key});
@@ -13,24 +13,17 @@ class MyHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Scanner QR Code')),
-      body: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<dynamic>(
-                    builder: (BuildContext context) =>
-                        const BarcodeScannerWithController(),
-                  ),
-                );
-              },
-              child: const Icon(Icons.camera_alt_rounded),
-            ),
-          ],
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<dynamic>(
+                builder: (BuildContext context) =>
+                    const BarcodeScannerWithController(),
+              ),
+            );
+          },
+          child: const Text('Ouvrir le scanner QR'),
         ),
       ),
     );
@@ -47,55 +40,70 @@ class BarcodeScannerWithController extends StatefulWidget {
 
 class _BarcodeScannerWithControllerState
     extends State<BarcodeScannerWithController> {
-  BarcodeCapture? barcode;
-
   late final MobileScannerController controller;
-
-  bool isStarted = true;
 
   @override
   void initState() {
     super.initState();
-    controller = MobileScannerController(
-      torchEnabled: true,
-      // formats: [BarcodeFormat.qrCode],
-      // facing: CameraFacing.front,
-      // detectionSpeed: DetectionSpeed.normal,
-      // detectionTimeoutMs: 1000,
-      // returnImage: false,
-    );
-    controller.start();
+    controller = MobileScannerController(torchEnabled: false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(controller.hashCode.toString()),
+        title: const Text('Scanner QR Code'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.flash_on),
+            onPressed: () {
+              controller.toggleTorch();
+            },
+          ),
+        ],
       ),
-      body: Builder(
-        builder: (BuildContext context) {
-          return Stack(
-            children: <Widget>[
-              MobileScanner(
-                controller: controller,
-                errorBuilder: (
-                  BuildContext context,
-                  MobileScannerException error,
-                  Widget? child,
-                ) {
-                  return ScannerErrorWidget(error: error);
-                },
-                fit: BoxFit.contain,
-                onDetect: (BarcodeCapture barcode) {
-                  setState(() {
-                    this.barcode = barcode;
-                  });
-                },
-              ),
-            ],
-          );
+      body: MobileScanner(
+        controller: controller,
+        onDetect: (barcodeCapture) {
+          final barcode = barcodeCapture.barcodes.first;
+          if (barcode.rawValue != null) {
+            final String code = barcode.rawValue!;
+            if (_isVCard(code)) {
+              controller.stop();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => QRCodeResultPage(qrCodeData: code),
+                ),
+              );
+            } else {
+              _navigateBackWithError(
+                  context, 'Le QR Code détecté n\'est pas une vCard.');
+            }
+          } else {
+            _navigateBackWithError(context, 'Code QR non valide.');
+          }
         },
+      ),
+    );
+  }
+
+  /// Vérifie si le contenu correspond à une vCard
+  bool _isVCard(String code) {
+    return code.trim().startsWith('BEGIN:VCARD');
+  }
+
+  /// Navigue vers la page principale avec un message d'erreur
+  void _navigateBackWithError(BuildContext context, String errorMessage) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => MyHome(), // Retour à la page home
+      ),
+    );
+    // Afficher un SnackBar avec le message d'erreur
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -107,40 +115,39 @@ class _BarcodeScannerWithControllerState
   }
 }
 
-class ScannerErrorWidget extends StatelessWidget {
-  const ScannerErrorWidget({super.key, required this.error});
+class QRCodeResultPage extends StatelessWidget {
+  final String qrCodeData;
 
-  final MobileScannerException error;
+  const QRCodeResultPage({super.key, required this.qrCodeData});
 
   @override
   Widget build(BuildContext context) {
-    String errorMessage;
-
-    switch (error.errorCode) {
-      case MobileScannerErrorCode.controllerUninitialized:
-        errorMessage = 'Controller not ready.';
-        break;
-      case MobileScannerErrorCode.permissionDenied:
-        errorMessage = 'Permission denied';
-        break;
-      default:
-        errorMessage = 'Generic Error';
-        break;
-    }
-
-    return ColoredBox(
-      color: Colors.black,
-      child: Center(
+    return Scaffold(
+      appBar: AppBar(title: const Text('Résultat du QR Code')),
+      body: Center(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: Icon(Icons.error, color: Colors.white),
-            ),
             Text(
-              errorMessage,
-              style: const TextStyle(color: Colors.white),
+              'vCard détectée :',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              qrCodeData,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const MyHome(),
+                  ),
+                );
+              },
+              child: const Text('Scanner un autre QR Code'),
             ),
           ],
         ),

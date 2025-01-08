@@ -175,12 +175,19 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
 
               // Extrait l'ID pour construire l'URL de l'image
               String? fullId = row.colByName('id'); // Exemple : "PA1078"
-              String numbersOnly = '';
+              String numbersOnly = ''; // Déclare 'numbersOnly' ici
               if (fullId != null) {
                 numbersOnly = fullId.replaceAll(RegExp(r'\D'), ''); // Supprime tout sauf les chiffres
               }
 
+              // Construction de l'URL de l'image
               image = 'https://datan.fr/assets/imgs/deputes_webp/depute_${numbersOnly}_webp.webp';
+
+              // Vérification de l'existence et de la validité de l'image
+              if (image != null && image!.isNotEmpty) {
+                // Effectuer l'insertion dans une fonction asynchrone distincte
+                _insertIntoEntreHemicycle(numbersOnly, conn);
+              }
             });
           } else {
             setState(() {
@@ -206,6 +213,28 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
     }
   }
 
+// Nouvelle fonction asynchrone pour l'insertion
+  Future<void> _insertIntoEntreHemicycle(String deputeId, MySQLConnection conn) async {
+    try {
+      String currentDate = DateTime.now().toString(); // Date actuelle
+      await conn.execute(
+          "INSERT INTO `entreHemicycle` (`idEntre`, `idDepute`, `dateEntre`) VALUES (NULL, :deputeId, :dateEntre)",
+          {
+            'deputeId': deputeId, // Utilisation de numbersOnly pour l'ID du député
+            'dateEntre': currentDate, // La date de scan
+          }
+      );
+      setState(() {
+        deputesData = "Entrée enregistrée avec succès à $currentDate";
+      });
+    } catch (e) {
+      setState(() {
+        deputesData = "Erreur lors de l'insertion dans entreHemicycle : $e";
+      });
+    }
+  }
+
+
 
 
   @override
@@ -221,12 +250,7 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 20),
-            Text(
-              widget.qrCodeData,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 40),
+
             // Vérification de nullité pour 'image'
             if (image == null || image!.isEmpty) ...[
               const CircularProgressIndicator(),
@@ -262,4 +286,3 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
     );
   }
 }
-

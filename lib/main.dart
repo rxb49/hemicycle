@@ -123,6 +123,7 @@ class QRCodeResultPage extends StatefulWidget {
 
 class _QRCodeResultPageState extends State<QRCodeResultPage> {
   String? deputesData;
+  String? image;
 
   @override
   void initState() {
@@ -147,8 +148,16 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
       if (result.rows.isNotEmpty) {
         setState(() {
           // Récupération des colonnes selon votre table
-          deputesData =
-          "Id : ${result.rows.first.colByName('id')}";
+          deputesData = "Id : ${result.rows.first.colByName('id')}";
+
+          String? fullId = result.rows.first.colByName('id'); // Exemple : "PA1078"
+          String numbersOnly = '';
+
+          if (fullId != null) {
+            numbersOnly = fullId.replaceAll(RegExp(r'\D'), ''); // Supprime tout sauf les chiffres
+          }
+
+          image = 'https://datan.fr/assets/imgs/deputes_webp/depute_${numbersOnly}_webp.webp';
         });
       } else {
         setState(() {
@@ -183,17 +192,33 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 40),
-            if (deputesData == null)
-              const CircularProgressIndicator()
-            else
-              Text(
-                deputesData!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
+            // Vérification de nullité pour 'image'
+            if (image == null || image!.isEmpty) ...[  // Utiliser '...' pour un List de Widgets
+              const CircularProgressIndicator(),
+            ] else ...[
+              Image.network(
+                image!, // URL de l'image dynamique
+                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                            : null,
+                      ),
+                    );
+                  }
+                },
               ),
+            ],
           ],
         ),
       ),
     );
   }
+
+
+
 }

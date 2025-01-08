@@ -85,12 +85,26 @@ class _BarcodeScannerWithControllerState
           if (barcode.rawValue != null) {
             final String code = barcode.rawValue!;
             controller.stop();
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) =>
-                    QRCodeResultPage(qrCodeData: code), // Passe les données QR
-              ),
-            );
+
+            // Vérifiez si le QR Code contient des informations vCard
+            if (_isValidVCard(code)) {
+              // Si c'est une vCard valide, naviguer vers la page de résultat
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      QRCodeResultPage(qrCodeData: code), // Passe les données QR
+                ),
+              );
+            } else {
+              // Si ce n'est pas une vCard valide, afficher un message d'erreur
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('QR Code non valide ou non au format vCard.'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              Navigator.of(context).pop();
+            }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -102,6 +116,14 @@ class _BarcodeScannerWithControllerState
         },
       ),
     );
+  }
+
+  bool _isValidVCard(String code) {
+    // Vérifie si le QR Code contient le début et la fin d'une vCard
+    if (code.contains('BEGIN:VCARD') && code.contains('END:VCARD')) {
+      return true; // C'est une vCard valide
+    }
+    return false; // Ce n'est pas une vCard valide
   }
 
   @override
@@ -171,7 +193,7 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
             setState(() {
               // Récupération des données de la ligne correspondante
               var row = result.rows.first;
-              deputesData = "Nom : ${row.colByName('nom')}, Prénom : ${row.colByName('prenom')}";
+              deputesData = "Nom : ${row.colByName('nom')}, Prénom : ${row.colByName('prenom')}" ;
 
               // Extrait l'ID pour construire l'URL de l'image
               String? fullId = row.colByName('id'); // Exemple : "PA1078"
@@ -213,7 +235,7 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
     }
   }
 
-// Nouvelle fonction asynchrone pour l'insertion
+  // Nouvelle fonction asynchrone pour l'insertion
   Future<void> _insertIntoEntreHemicycle(String deputeId, MySQLConnection conn) async {
     try {
       String currentDate = DateTime.now().toString(); // Date actuelle
@@ -233,9 +255,6 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
       });
     }
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {

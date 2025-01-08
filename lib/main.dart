@@ -208,6 +208,7 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
 
               // Construction de l'URL de l'image
               image = 'https://datan.fr/assets/imgs/deputes_webp/depute_${numbersOnly}_webp.webp';
+              _insertIntoEntreHemicycle(numbersOnly, conn);
             });
           } else {
             setState(() {
@@ -229,6 +230,28 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
     } catch (e) {
       setState(() {
         deputesData = "Erreur : $e";
+      });
+    }
+  }
+
+  Future<void> _insertIntoEntreHemicycle(String deputeId, MySQLConnection conn) async {
+    try {
+      String currentDate = DateTime.now().toString(); // Date actuelle
+      await conn.execute(
+          "INSERT INTO `entreHemicycle` (`idEntre`, `idDepute`, `dateEntre`) VALUES (NULL, :deputeId, :dateEntre)",
+          {
+            'deputeId': deputeId,
+            // Utilisation de numbersOnly pour l'ID du député
+            'dateEntre': currentDate,
+            // La date de scan
+          }
+      );
+      setState(() {
+        deputesData = "Entrée enregistrée avec succès à $currentDate";
+      });
+    } catch (e) {
+      setState(() {
+        deputesData = "Erreur lors de l'insertion dans entreHemicycle : $e";
       });
     }
   }

@@ -146,6 +146,8 @@ class QRCodeResultPage extends StatefulWidget {
 class _QRCodeResultPageState extends State<QRCodeResultPage> {
   String? deputesData;
   String? image;
+  String? nom;
+  String? prenom;
 
   @override
   void initState() {
@@ -193,7 +195,9 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
             setState(() {
               // Récupération des données de la ligne correspondante
               var row = result.rows.first;
-              deputesData = "Nom : ${row.colByName('nom')}, Prénom : ${row.colByName('prenom')}" ;
+              deputesData = "Nom : ${row.colByName('nom')}, Prénom : ${row.colByName('prenom')}";
+              prenom = "${row.colByName('prenom')} ${row.colByName('nom')}";
+              nom = "${row.colByName('nom')}";  //
 
               // Extrait l'ID pour construire l'URL de l'image
               String? fullId = row.colByName('id'); // Exemple : "PA1078"
@@ -204,12 +208,6 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
 
               // Construction de l'URL de l'image
               image = 'https://datan.fr/assets/imgs/deputes_webp/depute_${numbersOnly}_webp.webp';
-
-              // Vérification de l'existence et de la validité de l'image
-              if (image != null && image!.isNotEmpty) {
-                // Effectuer l'insertion dans une fonction asynchrone distincte
-                _insertIntoEntreHemicycle(numbersOnly, conn);
-              }
             });
           } else {
             setState(() {
@@ -231,27 +229,6 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
     } catch (e) {
       setState(() {
         deputesData = "Erreur : $e";
-      });
-    }
-  }
-
-  // Nouvelle fonction asynchrone pour l'insertion
-  Future<void> _insertIntoEntreHemicycle(String deputeId, MySQLConnection conn) async {
-    try {
-      String currentDate = DateTime.now().toString(); // Date actuelle
-      await conn.execute(
-          "INSERT INTO `entreHemicycle` (`idEntre`, `idDepute`, `dateEntre`) VALUES (NULL, :deputeId, :dateEntre)",
-          {
-            'deputeId': deputeId, // Utilisation de numbersOnly pour l'ID du député
-            'dateEntre': currentDate, // La date de scan
-          }
-      );
-      setState(() {
-        deputesData = "Entrée enregistrée avec succès à $currentDate";
-      });
-    } catch (e) {
-      setState(() {
-        deputesData = "Erreur lors de l'insertion dans entreHemicycle : $e";
       });
     }
   }
@@ -291,12 +268,17 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
                 },
               ),
             ],
-            if (deputesData != null) ...[
+            if (nom != null && prenom != null) ...[
               const SizedBox(height: 20),
               Text(
-                deputesData!,
+                'Nom: $nom',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Prénom: $prenom',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
           ],

@@ -142,26 +142,59 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
       );
 
       await conn.connect();
-      final result =
-      await conn.execute("SELECT * FROM deputes_active LIMIT 1");
 
-      if (result.rows.isNotEmpty) {
-        setState(() {
-          // Récupération des colonnes selon votre table
-          deputesData = "Id : ${result.rows.first.colByName('id')}";
+      // Extraction du nom et prénom depuis le QR code
+      String qrCode = widget.qrCodeData;
 
-          String? fullId = result.rows.first.colByName('id'); // Exemple : "PA1078"
-          String numbersOnly = '';
+      // Chercher la ligne contenant "N:" et extraire nom et prénom
+      String? nameLine = qrCode.split("\n").firstWhere((line) => line.startsWith("N:"), orElse: () => "");
 
-          if (fullId != null) {
-            numbersOnly = fullId.replaceAll(RegExp(r'\D'), ''); // Supprime tout sauf les chiffres
+      if (nameLine.isNotEmpty) {
+        // Supprimer "N:" et séparer le nom et prénom par ";"
+        nameLine = nameLine.replaceFirst("N:", "").trim();
+        List<String> nameParts = nameLine.split(";");
+
+        if (nameParts.length == 2) {
+          String lastName = nameParts[0];  // "Bazin"
+          String firstName = nameParts[1]; // "Thibault"
+
+          // Recherche dans la base de données par nom et prénom
+          final result = await conn.execute(
+              "SELECT * FROM deputes_active WHERE nom = :lastName AND prenom = :firstName LIMIT 1",
+              {
+                'lastName': lastName, // Paramètre pour le nom
+                'firstName': firstName, // Paramètre pour le prénom
+              }
+          );
+
+          if (result.rows.isNotEmpty) {
+            setState(() {
+              // Récupération des données de la ligne correspondante
+              var row = result.rows.first;
+              deputesData = "Nom : ${row.colByName('nom')}, Prénom : ${row.colByName('prenom')}";
+
+              // Extrait l'ID pour construire l'URL de l'image
+              String? fullId = row.colByName('id'); // Exemple : "PA1078"
+              String numbersOnly = '';
+              if (fullId != null) {
+                numbersOnly = fullId.replaceAll(RegExp(r'\D'), ''); // Supprime tout sauf les chiffres
+              }
+
+              image = 'https://datan.fr/assets/imgs/deputes_webp/depute_${numbersOnly}_webp.webp';
+            });
+          } else {
+            setState(() {
+              deputesData = "Aucun député trouvé pour ce nom et prénom.";
+            });
           }
-
-          image = 'https://datan.fr/assets/imgs/deputes_webp/depute_${numbersOnly}_webp.webp';
-        });
+        } else {
+          setState(() {
+            deputesData = "Nom et prénom mal formatés dans le QR Code.";
+          });
+        }
       } else {
         setState(() {
-          deputesData = "Aucune donnée trouvée dans la table.";
+          deputesData = "Aucune information de nom et prénom trouvée dans le QR Code.";
         });
       }
 
@@ -172,6 +205,8 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
       });
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +228,7 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
             ),
             const SizedBox(height: 40),
             // Vérification de nullité pour 'image'
-            if (image == null || image!.isEmpty) ...[  // Utiliser '...' pour un List de Widgets
+            if (image == null || image!.isEmpty) ...[
               const CircularProgressIndicator(),
             ] else ...[
               Image.network(
@@ -213,12 +248,18 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
                 },
               ),
             ],
+            if (deputesData != null) ...[
+              const SizedBox(height: 20),
+              Text(
+                deputesData!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
-
-
-
 }
+

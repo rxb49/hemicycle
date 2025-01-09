@@ -65,38 +65,117 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Résultat du QR Code')),
+      appBar: AppBar(
+        title: const Text(
+          'Résultat du QR Code',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.indigo,
+        automaticallyImplyLeading: false,
+      ),
       body: Center(
         child: deputesData == null
             ? const CircularProgressIndicator()
-            : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (image != null)
-              Image.network(image!)
-            else
-              const Text('Image non disponible'),
-            if (nom != null && prenom != null) ...[
-              const SizedBox(height: 20),
-              Text(
-                'Nom: $nom',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            : Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Card(
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (image != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        image!,
+                        height: 150,
+                        width: 150,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.person,
+                            size: 100,
+                            color: Colors.grey,
+                          );
+                        },
+                      ),
+                    )
+                  else
+                    const Icon(
+                      Icons.person_off,
+                      size: 100,
+                      color: Colors.grey,
+                    ),
+                  const SizedBox(height: 20),
+                  if (nom != null && prenom != null) ...[
+                    Text(
+                      'Nom : $nom',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Prénom : $prenom',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Date d\'entrée : $currentDate',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 30),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pushReplacementNamed('/');
+                    },
+                    icon: const Icon(
+                        Icons.home,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Retour à l\'accueil',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 15),
+                      backgroundColor: Colors.indigo,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                'Prénom: $prenom',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                'Date d\'entrée: $currentDate',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ],
+            ),
+          ),
         ),
       ),
     );
   }
-}
+  }

@@ -4,6 +4,7 @@ Ce projet permet de scanner les QR Code des députés de l'assemblé nationale l
 
 Utilisation d'une base de données mysql alimentée par le csv deputes-active.csv disponible par l'API suivante https://www.data.gouv.fr/fr/datasets/deputes-actifs-de-lassemblee-nationale-informations-et-statistiques/
 
+La bdd sert a vérifier l'appartenance du QR Code par un député de l'assemblé nationale et a sauvegarder la date d'entré d'un député.
 
 ## Getting Started
 
@@ -39,14 +40,4 @@ samples, guidance on mobile development, and a full API reference.
 
 7. Vous pouvez maintenant scanner les QR Code des députés de l'assemblé nationale et voir la liste des entrées
 
-## Charte d’utilisation d’outils d’aide à l’écriture de code dans le projet
 
-1. Objectif de la charte
-
-- Cette charte a pour objectif de définir les règles d’utilisation des outils d’aide à l’écriture de code, notamment ChatGPT, au sein du projet. Elle vise à garantir la transparence, le respect des droits de propriété intellectuelle, et l’adéquation avec les exigences     du projet.
-
-2. Utilisation d’outils d’aide à l’écriture de codeLes outils d’aide à l’écriture de code, comme ChatGPT, peuvent être utilisés dans le cadre du projet pour :
-   
-- Proposer des suggestions ou des solutions à des problèmes techniques.
-  
-- Générer des blocs de code standards ou répétitifs.

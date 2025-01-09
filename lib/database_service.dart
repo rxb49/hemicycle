@@ -81,7 +81,7 @@ class DatabaseService {
     try {
       final conn = await connectToDatabase();
 
-      // requête pour ignorer les lettres au début de d.idDepute
+      // Requête pour ignorer les lettres au début de d.id
       final result = await conn.execute(
           '''
       SELECT e.idEntre, e.idDepute, e.dateEntre, d.nom, d.prenom 
@@ -108,5 +108,7 @@ class DatabaseService {
       throw Exception('Erreur de récupération des entrées: $e');
     }
   }
+
+
 
 }

@@ -13,15 +13,14 @@ class MyHome extends StatelessWidget {
   // Connexion à la base de données
   Future<MySQLConnection> connectToDatabase() async {
     final conn = await MySQLConnection.createConnection(
-      host: "192.168.10.16", // Adresse IP de votre serveur ou localhost si local
-      port: 3306,            // Numéro de port (souvent 3306 pour MySQL)
-      userName: "tijou_robin",      // Nom d'utilisateur MySQL
-      password: "VW3A9g7w",      // Mot de passe MySQL
-      databaseName: "tijou_robin_hemicycle",  // Nom de la base de données
+      host: "192.168.10.16",
+      port: 3306,
+      userName: "tijou_robin",
+      password: "VW3A9g7w",
+      databaseName: "tijou_robin_hemicycle",
     );
 
     await conn.connect();
-    print("Connexion établie avec succès !");
     return conn;
   }
 
@@ -96,7 +95,6 @@ class _BarcodeScannerWithControllerState
                 ),
               );
             } else {
-              // Si ce n'est pas une vCard valide, afficher un message d'erreur
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('QR Code non valide ou non au format vCard.'),
@@ -121,9 +119,9 @@ class _BarcodeScannerWithControllerState
   bool _isValidVCard(String code) {
     // Vérifie si le QR Code contient le début et la fin d'une vCard
     if (code.contains('BEGIN:VCARD') && code.contains('END:VCARD')) {
-      return true; // C'est une vCard valide
+      return true;
     }
-    return false; // Ce n'est pas une vCard valide
+    return false;
   }
 
   @override
@@ -133,7 +131,6 @@ class _BarcodeScannerWithControllerState
   }
 }
 
-// Affichage des informations du QR Code et de la base de données
 class QRCodeResultPage extends StatefulWidget {
   final String qrCodeData;
 
@@ -148,11 +145,12 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
   String? image;
   String? nom;
   String? prenom;
+  String? currentDate;
 
   @override
   void initState() {
     super.initState();
-    _fetchDeputesData(); // Appeler la méthode pour récupérer les données
+    _fetchDeputesData();
   }
 
   Future<void> _fetchDeputesData() async {
@@ -179,15 +177,15 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
         List<String> nameParts = nameLine.split(";");
 
         if (nameParts.length == 2) {
-          String lastName = nameParts[0];  // "Bazin"
-          String firstName = nameParts[1]; // "Thibault"
+          String lastName = nameParts[0];
+          String firstName = nameParts[1];
 
           // Recherche dans la base de données par nom et prénom
           final result = await conn.execute(
               "SELECT * FROM deputes_active WHERE nom = :lastName AND prenom = :firstName LIMIT 1",
               {
-                'lastName': lastName, // Paramètre pour le nom
-                'firstName': firstName, // Paramètre pour le prénom
+                'lastName': lastName,
+                'firstName': firstName,
               }
           );
 
@@ -200,10 +198,10 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
               nom = "${row.colByName('nom')}";  //
 
               // Extrait l'ID pour construire l'URL de l'image
-              String? fullId = row.colByName('id'); // Exemple : "PA1078"
-              String numbersOnly = ''; // Déclare 'numbersOnly' ici
+              String? fullId = row.colByName('id');
+              String numbersOnly = '';
               if (fullId != null) {
-                numbersOnly = fullId.replaceAll(RegExp(r'\D'), ''); // Supprime tout sauf les chiffres
+                numbersOnly = fullId.replaceAll(RegExp(r'\D'), '');
               }
 
               // Construction de l'URL de l'image
@@ -211,19 +209,15 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
               _insertIntoEntreHemicycle(numbersOnly, conn);
             });
           } else {
-            setState(() {
-              deputesData = "Aucun député trouvé pour ce nom et prénom.";
-            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Code QR non valide.'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            Navigator.of(context).pop();
           }
-        } else {
-          setState(() {
-            deputesData = "Nom et prénom mal formatés dans le QR Code.";
-          });
         }
-      } else {
-        setState(() {
-          deputesData = "Aucune information de nom et prénom trouvée dans le QR Code.";
-        });
       }
 
       await conn.close();
@@ -236,14 +230,12 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
 
   Future<void> _insertIntoEntreHemicycle(String deputeId, MySQLConnection conn) async {
     try {
-      String currentDate = DateTime.now().toString(); // Date actuelle
+      currentDate = DateTime.now().toString();
       await conn.execute(
           "INSERT INTO `entreHemicycle` (`idEntre`, `idDepute`, `dateEntre`) VALUES (NULL, :deputeId, :dateEntre)",
           {
             'deputeId': deputeId,
-            // Utilisation de numbersOnly pour l'ID du député
             'dateEntre': currentDate,
-            // La date de scan
           }
       );
       setState(() {
@@ -275,7 +267,7 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
               const CircularProgressIndicator(),
             ] else ...[
               Image.network(
-                image!, // URL de l'image dynamique
+                image!,
                 loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                   if (loadingProgress == null) {
                     return child;
@@ -300,6 +292,11 @@ class _QRCodeResultPageState extends State<QRCodeResultPage> {
               ),
               Text(
                 'Prénom: $prenom',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Date d\'entrée: $currentDate',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),

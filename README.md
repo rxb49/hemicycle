@@ -42,4 +42,5 @@ Vous pouvez maintenant scanner les QR Code des députés de l'assemblé national
 2. Utilisation d’outils d’aide à l’écriture de codeLes outils d’aide à l’écriture de code, comme ChatGPT, peuvent être utilisés dans le cadre du projet pour :
    
   Proposer des suggestions ou des solutions à des problèmes techniques.
+  
   Générer des blocs de code standards ou répétitifs.

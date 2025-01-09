@@ -33,7 +33,7 @@ Se connecter au réseaux de Chevrollier grâce à openVPN
 
 Vous pouvez maintenant scanner les QR Code des députés de l'assemblé nationale
 
-##Charte d’utilisation d’outils d’aide à l’écriture de code dans le projet
+## Charte d’utilisation d’outils d’aide à l’écriture de code dans le projet
 
 1. Objectif de la charte
 

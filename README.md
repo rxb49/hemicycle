@@ -1,6 +1,20 @@
 # hemicycle
 
-A new Flutter project.
+Charte d’utilisation d’outils d’aide à l’écriture de code dans le projet
+
+1. Objectif de la charte
+
+Cette charte a pour objectif de définir les règles d’utilisation des outils d’aide à l’écriture de code, notamment ChatGPT, au sein du projet. Elle vise à garantir la transparence, le respect des droits de propriété intellectuelle, et l’adéquation avec les exigences du projet.
+
+2. Utilisation d’outils d’aide à l’écriture de code
+
+Les outils d’aide à l’écriture de code, comme ChatGPT, peuvent être utilisés dans le cadre du projet pour :
+
+Proposer des suggestions ou des solutions à des problèmes techniques.
+
+Générer des blocs de code standards ou répétitifs.
+
+
 
 ## Getting Started
 

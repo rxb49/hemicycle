@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mysql_client/mysql_client.dart';
 
+// Ce code a été généré avec l'aide de l'intelligence artificielle.
 void main() => runApp(const MaterialApp(
   debugShowCheckedModeBanner: false,
   home: MyHome(),

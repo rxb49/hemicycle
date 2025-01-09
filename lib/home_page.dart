@@ -16,6 +16,7 @@ class MyHome extends StatelessWidget {
           children: <Widget>[
             ElevatedButton(
               onPressed: () {
+                // Naviguer vers la page de scan
                 Navigator.of(context).push(
                   MaterialPageRoute<dynamic>(
                     builder: (BuildContext context) =>
@@ -32,7 +33,7 @@ class MyHome extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute<dynamic>(
                     builder: (BuildContext context) =>
-                    const ListEntrePage(), // Utilisation de ListEntrePage importée
+                    const ListEntrePage(),
                   ),
                 );
               },

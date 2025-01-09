@@ -42,6 +42,7 @@ class DatabaseService {
           if (result.rows.isNotEmpty) {
             var row = result.rows.first;
             String? fullId = row.colByName('id');
+            // recuperation des chiffres dans l'id pour afficher l'image
             String numbersOnly = fullId?.replaceAll(RegExp(r'\D'), '') ?? '';
 
             // Construire les données à retourner
@@ -61,7 +62,7 @@ class DatabaseService {
     }
   }
 
-  // Insérer dans la table `entreHemicycle`
+  // Insérer dans la table entreHemicycle
   Future<void> insertIntoEntreHemicycle(String deputeId) async {
     try {
       final conn = await connectToDatabase();

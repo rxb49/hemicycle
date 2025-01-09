@@ -23,19 +23,21 @@ samples, guidance on mobile development, and a full API reference.
 
 `git clone git@github.com:rxb49/hemicycle.git`
 
-Mettre son téléphone en mode développeur et activer l'installation par USB
+1. Mettre son téléphone en mode développeur et activer l'installation par USB
 
-Connecter son téléphone à l'ordinateur avec un cable USB
+2. Connecter son téléphone à l'ordinateur avec un cable USB
 
-Installer les dépendances
+3. Installer les dépendances 
+    * mobile_scanner: ^6.0.2 pour le scan des QR Code
+    * mysql_client: ^0.0.27 pour les requêtes à la bdd
 
-Lancer le projet avec le fichier lib/main.dart et séléctionner son téléphone
+4. Lancer le projet avec le fichier lib/main.dart et séléctionner son téléphone
 
-Autoriser l'installation de l'application
+5. Autoriser l'installation de l'application
 
-Se connecter au réseaux de Chevrollier grâce à openVPN
+6. Se connecter au réseaux de Chevrollier grâce à openVPN
 
-Vous pouvez maintenant scanner les QR Code des députés de l'assemblé nationale
+7. Vous pouvez maintenant scanner les QR Code des députés de l'assemblé nationale et voir la liste des entrées
 
 ## Charte d’utilisation d’outils d’aide à l’écriture de code dans le projet
 

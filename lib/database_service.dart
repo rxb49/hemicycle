@@ -75,4 +75,38 @@ class DatabaseService {
       throw Exception("Erreur lors de l'insertion : $e");
     }
   }
+
+  // Lister les entrées dans l'hémicycle
+  Future<List<Map<String, dynamic>>> fetchAllEntre() async {
+    try {
+      final conn = await connectToDatabase();
+
+      // requête pour ignorer les lettres au début de d.idDepute
+      final result = await conn.execute(
+          '''
+      SELECT e.idEntre, e.idDepute, e.dateEntre, d.nom, d.prenom 
+      FROM entreHemicycle e
+      INNER JOIN deputes_active d 
+        ON e.idDepute = CAST(REGEXP_REPLACE(d.id, '[^0-9]', '') AS UNSIGNED)
+      '''
+      );
+
+      List<Map<String, dynamic>> entrees = [];
+      for (var row in result.rows) {
+        entrees.add({
+          'id': row.colByName('idEntre') ?? 'N/A',
+          'deputeId': row.colByName('idDepute') ?? 'N/A',
+          'dateEntre': row.colByName('dateEntre') ?? 'Inconnu',
+          'nom': row.colByName('nom') ?? 'Inconnu',
+          'prenom': row.colByName('prenom') ?? 'Inconnu',
+        });
+      }
+
+      await conn.close();
+      return entrees;
+    } catch (e) {
+      throw Exception('Erreur de récupération des entrées: $e');
+    }
+  }
+
 }

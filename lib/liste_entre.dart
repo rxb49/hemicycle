@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'database_service.dart';
-// Ce code a été généré avec l'aide de l'intelligence artificielle.
 
 class ListEntrePage extends StatefulWidget {
   const ListEntrePage({super.key});

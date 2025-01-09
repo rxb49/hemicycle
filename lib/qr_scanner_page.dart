@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'qr_result_page.dart';
-// Ce code a été généré avec l'aide de l'intelligence artificielle.
 
 class BarcodeScannerWithController extends StatefulWidget {
   const BarcodeScannerWithController({super.key});

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 
-// Ce code a été généré avec l'aide de l'intelligence artificielle.
 
 void main() {
   runApp(const MyApp());

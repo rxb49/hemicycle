@@ -1,5 +1,4 @@
 import 'package:mysql_client/mysql_client.dart';
-// Ce code a été généré avec l'aide de l'intelligence artificielle.
 class DatabaseService {
   // Connexion à la base de données
   Future<MySQLConnection> connectToDatabase() async {

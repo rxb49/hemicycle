@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'liste_entre.dart';
 import 'qr_scanner_page.dart';
 
-// Ce code a été généré avec l'aide de l'intelligence artificielle.
 
 class MyHome extends StatelessWidget {
   const MyHome({super.key});

@@ -4,7 +4,7 @@ Ce projet permet de scanner les QR Code des députés de l'assemblé nationale l
 
 Utilisation d'une base de données mysql alimentée par le csv deputes-active.csv disponible par l'API suivante https://www.data.gouv.fr/fr/datasets/deputes-actifs-de-lassemblee-nationale-informations-et-statistiques/
 
-La bdd sert a vérifier l'appartenance du QR Code par un député de l'assemblé nationale et a sauvegarder la date d'entré d'un député.
+La bdd sert a vérifier l'appartenance du QR Code par un député de l'assemblé nationale et a sauvegarder la date d'entrée d'un député.
 
 ## Installation
 

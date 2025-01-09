@@ -25,6 +25,8 @@ Mettre son téléphone en mode développeur et activer l'installation par USB
 
 Connecter son téléphone à l'ordinateur avec un cable USB
 
+Installer les dépendances
+
 Lancer le projet avec le fichier lib/main.dart et séléctionner son téléphone
 
 Autoriser l'installation de l'application

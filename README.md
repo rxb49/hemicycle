@@ -6,20 +6,6 @@ Utilisation d'une base de données mysql alimentée par le csv deputes-active.cs
 
 La bdd sert a vérifier l'appartenance du QR Code par un député de l'assemblé nationale et a sauvegarder la date d'entré d'un député.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-
 ## Installation
 
 `git clone git@github.com:rxb49/hemicycle.git`
